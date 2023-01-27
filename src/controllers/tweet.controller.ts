@@ -88,8 +88,8 @@ export async function getMyTweets(req: Request, res: Response) {
   }
 }
 
-export async function getUserTweets(req: Request, res: Response) {
-  const { userID } = req.params;
+export async function getUserTweetsByUsername(req: Request, res: Response) {
+  const { username } = req.params;
   const listMode = req.query?.["list"];
   const includeID = req.query?.["id"];
 
@@ -98,19 +98,34 @@ export async function getUserTweets(req: Request, res: Response) {
   };
   try {
     // find userID by username
-    const tweetUser = await userModel.findOne({ username: userID });
+    const tweetUser = await userModel.findOne({ username });
     const userTweets = await tweetModel
       .find({ owner: tweetUser?.id }, projection)
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
-    res.send(_tweets);
+
+    // get stat for liked or not for each tweets by user
+    const tweets: any = [];
+    for await (const tweet of _tweets) {
+      const liked = await isTweetLikedByUser(tweet.id, req["_user"].id);
+      tweets.push({ ...tweet.toJSON(), liked });
+    }
+
+    res.send(tweets);
   } catch (e: any) {
     res.status(500).send({
       status: "ERROR",
       message: "Failed to get requested user tweets",
     });
   }
+}
+
+// get stat for tweet is liked by requesting user or not
+async function isTweetLikedByUser(tweet, likedBy) {
+  const isLiked = await likeModel.exists({ tweet, likedBy });
+  if (!isLiked) return false;
+  return true;
 }
 
 export async function getTweetById(req: Request, res: Response) {
@@ -123,9 +138,11 @@ export async function getTweetById(req: Request, res: Response) {
 
     if (!tweet) throw new Error("Tweet not found!");
 
+    const liked = await isTweetLikedByUser(id, req["_user"].id);
+
     // find tweet replies
 
-    res.send(tweet);
+    res.send({ ...tweet.toJSON(), liked });
   } catch (error) {
     res.status(404).send({ message: "Tweet doesn't exists!" });
   }
@@ -146,7 +163,9 @@ export async function updateTweetHandler(req: Request, res: Response) {
     .populate("owner", "name username profile bio count")
     .populate("attachments", "id path url mimetype");
 
-  return res.send(updatedTweet);
+  const liked = await isTweetLikedByUser(id, req["_user"].id);
+
+  return res.send({ ...updatedTweet?.toJSON(), liked });
 }
 
 export async function checkLikedByMe(req: Request, res: Response, next) {

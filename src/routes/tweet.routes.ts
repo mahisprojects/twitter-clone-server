@@ -13,7 +13,7 @@ import {
   getForYouTweets,
   getMyTweets,
   getTweetById,
-  getUserTweets,
+  getUserTweetsByUsername,
   toggleTweetLike,
   updateTweetHandler,
 } from "controllers/tweet.controller";
@@ -37,7 +37,7 @@ router.get("/tweet/:id/likedByMe", userAreaHandler, checkLikedByMe);
 router.post("/tweet/new", userAreaHandler, createTweetHandler);
 
 // get requested user tweets
-router.get("/tweets/u/:userID", userAreaHandler, getUserTweets);
+router.get("/tweets/u/:username", userAreaHandler, getUserTweetsByUsername);
 
 const storage = new MediaStorage({ uploadDir: "user_tweet_media/" });
 
