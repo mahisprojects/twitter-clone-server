@@ -60,7 +60,7 @@ const registerUser = async (req: Request, res: Response) => {
       role: "user",
     });
 
-    res.json({ message: "Thank you for joining with us." });
+    res.json({ message: "Thank you for joining Twitter Clone." });
   } catch (error: any) {
     if (error?.keyPattern?.email == 1)
       return res
