@@ -190,7 +190,13 @@ export async function getTweetReplies(req: Request, res: Response) {
 
     if (!tweet) throw new Error("Tweet not found!");
 
-    const _replies = await tweetModel.find({ isReply: true, parentTweet: id });
+    const tweetReplies = await tweetModel
+      .find({ isReply: true, parentTweet: id })
+      .populate("owner", "name username profile bio count")
+      .populate("attachments", "id path url mimetype");
+
+    // filter by tweet likes @v1
+    const _replies = sortByKey(tweetReplies, "likeCount", { reverse: true });
 
     // get stat for liked or not for each tweet replies by user
     const replies: any = [];
