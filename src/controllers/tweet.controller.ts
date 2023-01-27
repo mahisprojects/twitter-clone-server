@@ -168,17 +168,6 @@ export async function updateTweetHandler(req: Request, res: Response) {
   return res.send({ ...updatedTweet?.toJSON(), liked });
 }
 
-export async function checkLikedByMe(req: Request, res: Response, next) {
-  const { id } = req.params;
-  const tweet = await tweetModel.findById(id);
-  if (!tweet) return next(new BadRequestError("Tweet doesn't exists!"));
-  const isLiked = await likeModel.findOne({
-    tweet: id,
-    likedBy: req["_user"].id,
-  });
-  res.send({ liked: isLiked ? true : false });
-}
-
 export async function toggleTweetLike(req: Request, res: Response, next) {
   const { id } = req.params;
   const tweet = await tweetModel.findById(id);

@@ -7,7 +7,6 @@ import { authenticateIfUser } from "../common/middleware/authenticate-if-user";
 import { mediaUploadHandler } from "../controllers/media.controller";
 import MediaStorage from "../common/middleware/storage";
 import {
-  checkLikedByMe,
   createTweetHandler,
   deleteTweetHandler,
   getForYouTweets,
@@ -31,7 +30,6 @@ router.get("/my-tweets", userAreaHandler, getMyTweets);
 router.get("/tweet/:id", userAreaHandler, getTweetById);
 
 router.patch("/tweet/:id/like", userAreaHandler, toggleTweetLike);
-router.get("/tweet/:id/likedByMe", userAreaHandler, checkLikedByMe);
 
 // create/post new tweet
 router.post("/tweet/new", userAreaHandler, createTweetHandler);
