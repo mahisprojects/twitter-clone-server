@@ -106,8 +106,6 @@ export async function getUserTweets(req: Request, res: Response) {
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
     res.send(_tweets);
   } catch (e: any) {
-    console.log(e);
-
     res.status(500).send({
       status: "ERROR",
       message: "Failed to get requested user tweets",
@@ -120,7 +118,11 @@ export async function getTweetById(req: Request, res: Response) {
     const { id } = req.params;
     const tweet = await tweetModel
       .findById(id)
-      .populate("attachments", "id type size cdn");
+      .populate("owner", "name username profile bio count")
+      .populate("attachments", "id path url mimetype");
+
+    if (!tweet) throw new Error("Tweet not found!");
+
     // find tweet replies
 
     res.send(tweet);

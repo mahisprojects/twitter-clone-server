@@ -34,7 +34,7 @@ export class Tweet {
   @prop({ ref: () => Media, default: [], required: false })
   public attachments?: Ref<Media>[] | string[];
 
-  @prop({ required: false, default: null })
+  @prop({ required: false, default: "NORMAL" })
   public type?: tweetType;
 
   @prop({ ref: () => User, required: true })
