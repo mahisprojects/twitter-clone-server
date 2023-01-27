@@ -272,10 +272,24 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
     // if tweet is reply update parent tweet replyCount
     if (tweet?.isReply) {
       // fetch & save replies count
-      const replyCount = await tweetModel.count({ parentTweet: id });
+      const replyCount = await tweetModel.count({
+        parentTweet: tweet.parentTweet,
+      });
       await tweetModel.findByIdAndUpdate(tweet.parentTweet, {
         $set: { replyCount },
       });
+    }
+
+    if (!tweet?.isReply) {
+      // delete tweet replies
+      const replies = await tweetModel.find({ parentTweet: id });
+      for await (const tweetReply of replies) {
+        for await (const mediaID of tweetReply?.attachments!) {
+          const media = await mediaModel.findById(mediaID);
+          if (media) await media.deletePermanently();
+        }
+        tweetReply.delete();
+      }
     }
 
     await tweet?.delete();
