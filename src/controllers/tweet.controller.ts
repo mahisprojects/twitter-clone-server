@@ -63,7 +63,12 @@ export async function getForYouTweets(req: Request, res: Response) {
     //TODO: get recent top tweets from followings
 
     const fetchedTweets = await tweetModel
-      .find({ isReply: false }, projection)
+      .find(
+        {
+          $or: [{ isReply: { $exists: false } }, { isReply: false }],
+        },
+        projection
+      )
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(fetchedTweets, "createdAt", { reverse: true });
@@ -91,7 +96,10 @@ export async function getMyTweets(req: Request, res: Response) {
   };
   try {
     const userTweets = await tweetModel.find(
-      { owner: userId, isReply: false },
+      {
+        owner: userId,
+        $or: [{ isReply: { $exists: false } }, { isReply: false }],
+      },
       projection
     );
     res.send(userTweets);
@@ -112,7 +120,13 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
     // find userID by username
     const tweetUser = await userModel.findOne({ username });
     const userTweets = await tweetModel
-      .find({ owner: tweetUser?.id, isReply: false }, projection)
+      .find(
+        {
+          owner: tweetUser?.id,
+          $or: [{ isReply: { $exists: false } }, { isReply: false }],
+        },
+        projection
+      )
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
