@@ -60,12 +60,19 @@ export async function getForYouTweets(req: Request, res: Response) {
   try {
     //TODO: get recent top tweets from followings
 
-    const tweets = await tweetModel
+    const fetchedTweets = await tweetModel
       .find({}, projection)
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
-    const _tweets = sortByKey(tweets, "createdAt", { reverse: true });
-    res.send(_tweets);
+    const _tweets = sortByKey(fetchedTweets, "createdAt", { reverse: true });
+
+    // get stat for liked or not for each tweets by user
+    const tweets: any = [];
+    for await (const tweet of _tweets) {
+      const liked = await isTweetLikedByUser(tweet.id, req["_user"].id);
+      tweets.push({ ...tweet.toJSON(), liked });
+    }
+    res.send(tweets);
   } catch (e: any) {
     res.status(500).send({ status: "ERROR", message: e });
   }
