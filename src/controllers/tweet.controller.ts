@@ -156,6 +156,29 @@ export async function getTweetById(req: Request, res: Response) {
   }
 }
 
+// get tweet replies
+export async function getTweetReplies(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const tweet = await tweetModel.findById(id);
+
+    if (!tweet) throw new Error("Tweet not found!");
+
+    const _replies = await tweetModel.find({ isReply: true, parentTweet: id });
+
+    // get stat for liked or not for each tweet replies by user
+    const replies: any = [];
+    for await (const tweetReply of _replies) {
+      const liked = await isTweetLikedByUser(tweetReply.id, req["_user"].id);
+      replies.push({ ...tweetReply.toJSON(), liked });
+    }
+
+    res.send(replies);
+  } catch (error) {
+    res.status(404).send({ message: "Tweet doesn't exists!" });
+  }
+}
+
 export async function updateTweetHandler(req: Request, res: Response) {
   const { id } = req.params;
   const tweet = await tweetModel.findById(id);

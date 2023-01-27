@@ -13,6 +13,7 @@ import {
   getForYouTweets,
   getMyTweets,
   getTweetById,
+  getTweetReplies,
   getUserTweetsByUsername,
   toggleTweetLike,
   updateTweetHandler,
@@ -34,6 +35,9 @@ router.patch("/tweet/:id/like", userAreaHandler, toggleTweetLike);
 
 // create/post new tweet
 router.post("/tweet/new", userAreaHandler, createTweetHandler);
+
+// tweet reply
+router.get("/tweet/:id/replies", userAreaHandler, getTweetReplies);
 router.post("/tweet/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
