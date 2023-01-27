@@ -31,6 +31,9 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
   const { id: tweetID } = req.params;
 
   try {
+    const tweet = await tweetModel.findById(tweetID);
+    if (!tweet) throw new Error("Tweet not found!");
+
     let newTweetReply = await tweetModel.create({
       ...body,
       isReply: true,
@@ -40,6 +43,11 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
 
     newTweetReply = await newTweetReply.populate("attachments");
     await newTweetReply.populate("owner", "name username profile bio count");
+
+    // fetch & save replies count
+    const replies = await tweetModel.count({ parentTweet: tweetID });
+    tweet.replyCount = replies;
+    tweet.save();
 
     // create notification for tweet owner
 
@@ -253,6 +261,15 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
     for await (const mediaID of tweet?.attachments!) {
       const media = await mediaModel.findById(mediaID);
       if (media) await media.deletePermanently();
+    }
+
+    // if tweet is reply update parent tweet replyCount
+    if (tweet?.isReply) {
+      // fetch & save replies count
+      const replyCount = await tweetModel.count({ parentTweet: id });
+      await tweetModel.findByIdAndUpdate(tweet.parentTweet, {
+        $set: { replyCount },
+      });
     }
 
     await tweet?.delete();
