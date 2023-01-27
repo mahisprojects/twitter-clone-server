@@ -38,7 +38,7 @@ router.post("/tweet/new", userAreaHandler, createTweetHandler);
 
 // tweet reply
 router.get("/tweet/:id/replies", userAreaHandler, getTweetReplies);
-router.post("/tweet/reply", userAreaHandler, createTweetReplyHandler);
+router.post("/tweet/:id/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
 router.get("/tweets/u/:username", userAreaHandler, getUserTweetsByUsername);

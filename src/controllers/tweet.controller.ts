@@ -28,7 +28,7 @@ export async function createTweetHandler(req: Request, res: Response) {
 // create tweet reply
 export async function createTweetReplyHandler(req: Request, res: Response) {
   const body = req.body;
-  const { tweetID } = req.params;
+  const { id: tweetID } = req.params;
 
   try {
     let newTweetReply = await tweetModel.create({
