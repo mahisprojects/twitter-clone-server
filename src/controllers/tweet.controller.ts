@@ -39,6 +39,7 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
     });
 
     newTweetReply = await newTweetReply.populate("attachments");
+    await newTweetReply.populate("owner", "name username profile bio count");
 
     // create notification for tweet owner
 
@@ -62,7 +63,7 @@ export async function getForYouTweets(req: Request, res: Response) {
     //TODO: get recent top tweets from followings
 
     const fetchedTweets = await tweetModel
-      .find({}, projection)
+      .find({ isReply: false }, projection)
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(fetchedTweets, "createdAt", { reverse: true });
@@ -89,7 +90,10 @@ export async function getMyTweets(req: Request, res: Response) {
     ...(listMode && { content: 1, _id: includeID ? 1 : 0 }),
   };
   try {
-    const userTweets = await tweetModel.find({ owner: userId }, projection);
+    const userTweets = await tweetModel.find(
+      { owner: userId, isReply: false },
+      projection
+    );
     res.send(userTweets);
   } catch (e: any) {
     res.status(500).send({ status: "ERROR", message: e });
@@ -108,7 +112,7 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
     // find userID by username
     const tweetUser = await userModel.findOne({ username });
     const userTweets = await tweetModel
-      .find({ owner: tweetUser?.id }, projection)
+      .find({ owner: tweetUser?.id, isReply: false }, projection)
       .populate("owner", "name username profile bio count")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
