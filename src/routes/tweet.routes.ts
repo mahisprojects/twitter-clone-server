@@ -8,6 +8,7 @@ import { mediaUploadHandler } from "../controllers/media.controller";
 import MediaStorage from "../common/middleware/storage";
 import {
   createTweetHandler,
+  createTweetReplyHandler,
   deleteTweetHandler,
   getForYouTweets,
   getMyTweets,
@@ -33,6 +34,7 @@ router.patch("/tweet/:id/like", userAreaHandler, toggleTweetLike);
 
 // create/post new tweet
 router.post("/tweet/new", userAreaHandler, createTweetHandler);
+router.post("/tweet/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
 router.get("/tweets/u/:username", userAreaHandler, getUserTweetsByUsername);

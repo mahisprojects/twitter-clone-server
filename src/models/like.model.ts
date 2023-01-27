@@ -8,7 +8,6 @@ import {
 } from "@typegoose/typegoose";
 
 import { Tweet } from "./tweet.model";
-import { TweetReply } from "./tweetReply.model";
 
 type likeType = "TWEET" | "REPLY";
 @modelOptions({
@@ -30,9 +29,6 @@ type likeType = "TWEET" | "REPLY";
 export class Like {
   @prop({ ref: () => Tweet, required: false })
   public tweet?: Ref<Tweet>;
-
-  @prop({ ref: () => TweetReply, required: false })
-  public tweetReply?: Ref<TweetReply>;
 
   @prop({ required: false, default: "TWEET" })
   public type?: likeType;

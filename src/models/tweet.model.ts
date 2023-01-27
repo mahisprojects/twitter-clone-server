@@ -53,18 +53,12 @@ export class Tweet {
   @prop({ default: 0 })
   public replyCount: number;
 
+  // tweet Reply
   @prop({ default: false })
-  public trash: boolean;
+  public isReply: boolean;
 
-  public async moveToTrash(this: DocumentType<Tweet>) {
-    this.trash = true;
-    return await this.save();
-  }
-
-  public async restoreFromTrash(this: DocumentType<Tweet>) {
-    this.trash = false;
-    return await this.save();
-  }
+  @prop({ ref: () => Tweet, required: false })
+  public parentTweet?: Ref<Tweet>;
 
   public async deletePermanently(this: DocumentType<Tweet>) {
     // await fs.rm(this.path!, { force: true });

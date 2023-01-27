@@ -4,7 +4,6 @@ import { BadRequestError } from "../common/errors/bad-request-error";
 import { tweetModel } from "../models/tweet.model";
 import { userModel } from "../models/user.model";
 import { sortByKey } from "../utils/array";
-import { tweetReplyModel } from "../models/tweetReply.model";
 import { likeModel } from "../models/like.model";
 
 // user new tweeet
@@ -26,24 +25,26 @@ export async function createTweetHandler(req: Request, res: Response) {
   }
 }
 
-// save tweet reply
+// create tweet reply
 export async function createTweetReplyHandler(req: Request, res: Response) {
   const body = req.body;
-  const { tweetID, replyTweetID } = req.params;
+  const { tweetID } = req.params;
 
   try {
-    let newTweet = await tweetReplyModel.create({
+    let newTweetReply = await tweetModel.create({
       ...body,
-      tweet: tweetID,
-      replyTo: replyTweetID,
+      isReply: true,
+      parentTweet: tweetID,
       owner: req["_user"].id,
     });
 
-    newTweet = await newTweet.populate("attachments");
+    newTweetReply = await newTweetReply.populate("attachments");
 
-    return res.status(201).send(newTweet.toJSON());
+    // create notification for tweet owner
+
+    res.status(201).send(newTweetReply.toJSON());
   } catch (e: any) {
-    return res.status(500).send({ status: "ERROR", message: e });
+    res.status(500).send({ status: "ERROR", message: e });
   }
 }
 
