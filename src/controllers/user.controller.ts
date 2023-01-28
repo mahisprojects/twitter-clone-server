@@ -143,6 +143,7 @@ export async function getUserById(req: Request, res: Response, next) {
   }
 }
 async function getUserByUsername(req: Request, res: Response, next) {
+  const sessionUser = req["_user"].id;
   try {
     const { username } = req.params;
     const user = await userModel.findOne(
@@ -160,10 +161,13 @@ async function getUserByUsername(req: Request, res: Response, next) {
       }
     );
     if (!user) return next(new BadRequestError("User doesn't exists!"));
-    // get following data
-    const following = await checkIsFollowing(req["_user"].id, user?.id);
-    const follows = await checkIsFollowing(user?.id, req["_user"].id);
-    res.send({ ...user?.toJSON(), following, follows });
+    if (sessionUser) {
+      // get following data
+      const following = await checkIsFollowing(sessionUser, user?.id);
+      const follows = await checkIsFollowing(user?.id, sessionUser);
+      return res.send({ ...user?.toJSON(), following, follows });
+    }
+    res.send({ ...user?.toJSON(), following: false, follows: false });
   } catch (error) {
     next(new BadRequestError("User doesn't exists!"));
   }
