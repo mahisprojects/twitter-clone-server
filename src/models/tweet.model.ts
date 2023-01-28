@@ -7,10 +7,10 @@ import {
   prop,
   Ref,
 } from "@typegoose/typegoose";
-import { Media } from "./media.model";
+import { Media, mediaModel } from "./media.model";
 
-type tweetType = "NORMAL" | "IMAGE" | "POLL";
-type ReplyMode = "PUBLIC" | "FOLLOWING" | "MENTIONED";
+type tweetType = "NORMAL" | "IMAGE" | "POLL"; // Not Implemented
+type ReplyMode = "PUBLIC" | "FOLLOWING" | "MENTIONED"; // Not Implemented
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -53,16 +53,20 @@ export class Tweet {
   @prop({ default: 0 })
   public replyCount: number;
 
-  // tweet Reply
+  // is Tweet is Reply ?
   @prop({ default: false })
   public isReply: boolean;
 
   @prop({ ref: () => Tweet, required: false })
   public parentTweet?: Ref<Tweet>;
 
+  // delete tweet & related attachments
   public async deletePermanently(this: DocumentType<Tweet>) {
-    // await fs.rm(this.path!, { force: true });
-    // await this.delete();
+    for await (const mediaID of this.attachments!) {
+      const media = await mediaModel.findById(mediaID);
+      if (media) await media.deletePermanently();
+    }
+    await this?.delete();
   }
 
   public isAdmin(this: DocumentType<Tweet>, userID: String) {

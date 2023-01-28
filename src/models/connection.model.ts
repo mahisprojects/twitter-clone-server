@@ -26,13 +26,13 @@ export class Connection {
   @prop({ ref: () => User, required: false })
   public to?: Ref<User>;
 
+  // TODO: Extra feature
   @prop({ default: false })
   public muted?: boolean;
 
   @prop({ default: false })
   public blocked?: boolean;
 
-  // Extra feature
   @prop({ default: null })
   public feature?: typeFeature;
 }
