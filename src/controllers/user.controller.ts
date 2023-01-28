@@ -143,7 +143,7 @@ export async function getUserById(req: Request, res: Response, next) {
   }
 }
 async function getUserByUsername(req: Request, res: Response, next) {
-  const sessionUser = req["_user"].id;
+  const sessionUser = req["_user"]?.id;
   try {
     const { username } = req.params;
     const user = await userModel.findOne(
