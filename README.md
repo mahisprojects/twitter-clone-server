@@ -1,21 +1,20 @@
-# Twitter-Clone-server
+# Twitter Clone Server
 
 Twitter Clone app server using Node/Express/MongoDB
 
 ## Features
 
-✅ Email/Password Authentication
-✅ text/image Tweet
-✅ tweet reply, like,
-✅ basic tweet view count
-✅ search/follow/unfollow user
-✅ user profile page
+- ✅ Email/Password Authentication
+- ✅ text/image Tweet
+- ✅ tweet reply, like,
+- ✅ basic tweet view count
+- ✅ search/follow/unfollow user
+- ✅ user profile page
 
 ## TODO
 
-[ ] Video Tweet
-[ ] Tags
-[ ] Tweet/Reply/Like Notification
+- [ ] Tags
+- [ ] Tweet/Reply/Like Notification
 
 ## Getting Started | Project Setup
 
