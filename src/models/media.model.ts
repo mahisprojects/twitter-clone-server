@@ -17,7 +17,6 @@ type STORETYPE = "MBCLOUD" | "LOCAL" | "AWS";
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id;
-        delete ret.path;
         delete ret._id;
         delete ret.__v;
         delete ret.originalname;

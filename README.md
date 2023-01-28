@@ -37,7 +37,7 @@ npm run dev
 
 ## Build
 
-To build run `bun run build` or `npm run build`
+To build the project run `bun run build` or `npm run build`
 
 ## Connect
 

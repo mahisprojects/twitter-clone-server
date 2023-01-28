@@ -36,7 +36,7 @@ router.patch("/tweet/:id/like", userAreaHandler, toggleTweetLike);
 router.post("/tweet/new", userAreaHandler, createTweetHandler);
 
 // tweet reply
-router.get("/tweet/:id/replies", userAreaHandler, getTweetReplies);
+router.get("/tweet/:id/replies", authenticateIfUser, getTweetReplies);
 router.post("/tweet/:id/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
