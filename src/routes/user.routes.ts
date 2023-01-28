@@ -3,6 +3,7 @@ import userController, { getUserById } from "controllers/user.controller";
 import { authorization } from "common/middleware/authorization";
 import { verifyToken } from "common/middleware/verifyToken";
 import { requireAuthentication } from "common/middleware/require-auth";
+import { authenticateIfUser } from "../common/middleware/authenticate-if-user";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const adminAreaHandler = [...userAreaHandler, authorization(["admin"])];
 
 router.get(
   "/profile/:username",
-  userAreaHandler,
+  authenticateIfUser,
   userController.getUserByUsername
 );
 router.get("/user/:id", userAreaHandler, getUserById);
