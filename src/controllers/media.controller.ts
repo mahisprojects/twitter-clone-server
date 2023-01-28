@@ -27,11 +27,7 @@ export async function mediaUploadHandler(req: Request, res: Response, next) {
       user,
     });
 
-    var serverURL = `${req.protocol}://${req.headers.host}`;
-    res.send({
-      ...uploadedContent.toJSON(),
-      url: `${serverURL}/${path.replace("content/", "cdn/")}`,
-    });
+    res.send(uploadedContent.toJSON());
   } catch (error) {
     next(new BadRequestError("Failed to upload!"));
   }

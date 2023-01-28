@@ -3,11 +3,7 @@ import { userModel } from "models/user.model";
 import { sign } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { BadRequestError } from "../common/errors/bad-request-error";
-import { connectionModel } from "../models/connection.model";
-import {
-  checkIsFollowing,
-  fetchFollowConnectionAToB,
-} from "./connection.controller";
+import { checkIsFollowing } from "./connection.controller";
 
 const loginUser = async (req: Request, res: Response) => {
   try {

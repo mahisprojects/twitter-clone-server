@@ -13,15 +13,6 @@ export const checkIsFollowing = async (a, b) => {
   return false;
 };
 
-export const fetchFollowConnectionAToB = async (a, b) => {
-  const existConnection = await connectionModel.findOne({
-    from: a,
-    to: b,
-  });
-  if (existConnection) return existConnection;
-  return false;
-};
-
 export const fetchFollowConnectionBetweenAB = async (a, b) => {
   const existConnection = await connectionModel.findOne({
     ...(a !== b && {
@@ -47,10 +38,7 @@ export const followConnection = async (
     if (!toFollowUser || toFollowUser === userID)
       throw new Error("Invalid input!");
     // check for whether requesting user is already following to follow user or not
-    const alreadyFollowing = await fetchFollowConnectionAToB(
-      userID,
-      toFollowUser
-    );
+    const alreadyFollowing = await checkIsFollowing(userID, toFollowUser);
     if (alreadyFollowing) throw new Error("Already following!");
 
     const newConnection = await connectionModel.create({
@@ -69,9 +57,9 @@ export const followConnection = async (
     sessionUser!.count = { ...sessionUser?.count, following };
     sessionUser?.save();
 
-    // create follow notification : TODO
+    // TODO: create follow notification
 
-    res.send({ ...newConnection.toJSON() });
+    res.send(newConnection.toJSON());
   } catch (error) {
     next(new BadRequestError("Error whilte establishing Connection!"));
   }
@@ -91,7 +79,7 @@ export async function getFollowers(req: Request, res: Response, next) {
   }
 }
 
-export const getFollowings = async (
+export const getFollowing = async (
   req: Request,
   res: Response,
   next: NextFunction

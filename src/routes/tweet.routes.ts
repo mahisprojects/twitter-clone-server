@@ -23,13 +23,13 @@ const router = express.Router();
 const userAreaHandler = [verifyToken, requireAuthentication];
 
 // get for you tweets
-router.get("/tweets", userAreaHandler, getForYouTweets);
+router.get("/tweets", authenticateIfUser, getForYouTweets);
 
 // get current user tweets
 router.get("/my-tweets", userAreaHandler, getMyTweets);
 
 // get tweet by tweetID
-router.get("/tweet/:id", userAreaHandler, getTweetById);
+router.get("/tweet/:id", authenticateIfUser, getTweetById);
 
 router.patch("/tweet/:id/like", userAreaHandler, toggleTweetLike);
 
@@ -41,7 +41,7 @@ router.get("/tweet/:id/replies", userAreaHandler, getTweetReplies);
 router.post("/tweet/:id/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
-router.get("/tweets/u/:username", userAreaHandler, getUserTweetsByUsername);
+router.get("/tweets/u/:username", authenticateIfUser, getUserTweetsByUsername);
 
 const storage = new MediaStorage({ uploadDir: "user_tweet_media/" });
 

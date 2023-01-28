@@ -6,7 +6,7 @@ import { authenticateIfUser } from "../common/middleware/authenticate-if-user";
 import {
   followConnection,
   getFollowers,
-  getFollowings,
+  getFollowing,
   unfollowConnection,
   removeFollower,
 } from "../controllers/connection.controller";
@@ -16,11 +16,11 @@ const router = express.Router();
 const userAreaHandler = [verifyToken, requireAuthentication];
 
 // get current user followers/fowllowings
-router.get("/me/followings", userAreaHandler, getFollowings);
+router.get("/me/followings", userAreaHandler, getFollowing);
 router.get("/me/followers", userAreaHandler, getFollowers);
 
 // get user follower/followings
-router.get("/:userId/followings", userAreaHandler, getFollowings);
+router.get("/:userId/followings", userAreaHandler, getFollowing);
 router.get("/:userId/followers", userAreaHandler, getFollowers);
 
 // follow user

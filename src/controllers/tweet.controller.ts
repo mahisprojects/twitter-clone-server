@@ -61,15 +61,17 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
 export async function getForYouTweets(req: Request, res: Response) {
   const listMode = req.query?.["list"];
   const includeID = req.query?.["id"];
-  const following = req.query?.["following"]; // for getting tweets from followings only
+  //TODO : for getting tweets from followings only
+  const following = req.query?.["following"];
 
-  const userId = req["_user"].id;
+  const userID = req["_user"]?.id;
   const projection = {
     ...(listMode && { content: 1, _id: includeID ? 1 : 0 }),
   };
   try {
-    //TODO: get recent top tweets from followings
+    // check user exists or not
 
+    //TODO: get recent top tweets from followings
     const fetchedTweets = await tweetModel
       .find(
         {
@@ -81,10 +83,12 @@ export async function getForYouTweets(req: Request, res: Response) {
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(fetchedTweets, "createdAt", { reverse: true });
 
-    // get stat for liked or not for each tweets by user
+    // get stat for tweet is liked or not by session user
     const tweets: any = [];
     for await (const tweet of _tweets) {
-      const liked = await isTweetLikedByUser(tweet.id, req["_user"].id);
+      const liked = userID
+        ? await isTweetLikedByUser(tweet.id, req["_user"].id)
+        : false;
       tweets.push({ ...tweet.toJSON(), liked });
     }
     res.send(tweets);
@@ -121,6 +125,8 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
   const listMode = req.query?.["list"];
   const includeID = req.query?.["id"];
 
+  const userID = req["_user"]?.id;
+
   const projection = {
     ...(listMode && { content: 1, _id: includeID ? 1 : 0 }),
   };
@@ -139,10 +145,12 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
 
-    // get stat for liked or not for each tweets by user
+    // get stat for tweet is liked or not by session user
     const tweets: any = [];
     for await (const tweet of _tweets) {
-      const liked = await isTweetLikedByUser(tweet.id, req["_user"].id);
+      const liked = userID
+        ? await isTweetLikedByUser(tweet.id, req["_user"].id)
+        : false;
       tweets.push({ ...tweet.toJSON(), liked });
     }
 
@@ -155,7 +163,7 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
   }
 }
 
-// get stat for tweet is liked by requesting user or not
+// get stat for tweet is liked or not by user
 async function isTweetLikedByUser(tweet, likedBy) {
   const isLiked = await likeModel.exists({ tweet, likedBy });
   if (!isLiked) return false;
@@ -163,6 +171,7 @@ async function isTweetLikedByUser(tweet, likedBy) {
 }
 
 export async function getTweetById(req: Request, res: Response) {
+  const userID = req["_user"]?.id;
   try {
     const { id } = req.params;
     const tweet = await tweetModel
@@ -172,7 +181,7 @@ export async function getTweetById(req: Request, res: Response) {
 
     if (!tweet) throw new Error("Tweet not found!");
 
-    const liked = await isTweetLikedByUser(id, req["_user"].id);
+    const liked = userID ? await isTweetLikedByUser(tweet.id, userID) : false;
 
     // find tweet replies
 
@@ -184,6 +193,7 @@ export async function getTweetById(req: Request, res: Response) {
 
 // get tweet replies
 export async function getTweetReplies(req: Request, res: Response) {
+  const userID = req["_user"]?.id;
   try {
     const { id } = req.params;
     const tweet = await tweetModel.findById(id);
@@ -198,11 +208,11 @@ export async function getTweetReplies(req: Request, res: Response) {
     // filter by tweet likes @v1
     const _replies = sortByKey(tweetReplies, "likeCount", { reverse: true });
 
-    // get stat for liked or not for each tweet replies by user
+    // get stat for tweet is liked or not by session user
     const replies: any = [];
-    for await (const tweetReply of _replies) {
-      const liked = await isTweetLikedByUser(tweetReply.id, req["_user"].id);
-      replies.push({ ...tweetReply.toJSON(), liked });
+    for await (const reply of _replies) {
+      const liked = userID ? await isTweetLikedByUser(reply.id, userID) : false;
+      replies.push({ ...reply.toJSON(), liked });
     }
 
     res.send(replies);
@@ -300,7 +310,7 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
   }
 }
 
-// ====================
+// ==================== TODO
 
 // get following/following user liked tweets/recommended tweets
 export async function getTweetForMe(req: Request, res: Response, next) {
