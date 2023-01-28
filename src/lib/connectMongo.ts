@@ -8,8 +8,7 @@ export async function connectMongo() {
       process.env.MONGO_DB_URL! ?? process.env.MONGO_DB_URL!
     );
   } catch (err) {
-    console.log("database connection failed!", err);
-    // console.log("Cannot connect to the database!", err);
+    console.log("Database connection failed!", err);
     process.exit();
   }
 }

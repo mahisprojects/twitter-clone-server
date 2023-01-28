@@ -1,7 +1,6 @@
 import multer, { Multer } from "multer";
 import fs from "fs/promises";
 import { BadRequestError } from "common/errors/bad-request-error";
-// import fs from "fs";
 class MediaStorage {
   protected uploadDir: string = "";
   private storage;
@@ -39,7 +38,7 @@ class MediaStorage {
           file.originalname.lastIndexOf(".")
         );
 
-        cb(null, "tm__" + file.fieldname + "_" + Date.now() + ext);
+        cb(null, "tuf__" + file.fieldname + "_" + Date.now() + ext);
       },
     });
   }

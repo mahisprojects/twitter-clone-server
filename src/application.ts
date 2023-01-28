@@ -11,7 +11,7 @@ const BODY_PARSER_LIMIT: string = process.env.BODY_PARSER_LIMIT || "15mb";
 
 var allowedOrigins = [
   // 'http://localhost:3000',
-  "https://twitter-clone.itsbohara.com/",
+  "https://twitter-clone-2023.vercel.app",
 ];
 
 class Application {

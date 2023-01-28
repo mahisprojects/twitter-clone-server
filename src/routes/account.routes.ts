@@ -3,7 +3,6 @@ import { authorization } from "common/middleware/authorization";
 import { requireAuthentication } from "common/middleware/require-auth";
 import { verifyToken } from "common/middleware/verifyToken";
 import userController from "controllers/user.controller";
-// import { checkDuplicateEmail } from "middleware/verifySignUp";
 
 const router = Router();
 
@@ -16,11 +15,10 @@ router.get("/protected", verifyToken, (req, res) => {
 
 const userAreaHandler = [verifyToken, requireAuthentication];
 
-router.get("/me", userAreaHandler, userController.currentUserHandler);
-
 router.post("/login", userController.loginUser);
 router.post("/register", userController.registerUser);
 
+router.get("/me", userAreaHandler, userController.currentUserHandler);
 router.patch("/me", userAreaHandler, userController.updateUser);
 
 // ! NOT AVAILABLE
@@ -32,7 +30,7 @@ router.patch("/me", userAreaHandler, userController.updateUser);
 //   authorization(["admin"]),
 // ];
 
-// admin routes
+// admin routes - Not available
 // router.get("/users/:id", adminAreaHandler);
 // router.patch("/users/:id", adminAreaHandler, userController.updateUser);
 // router.delete("/users/:id", adminAreaHandler, userController.deleteUser);

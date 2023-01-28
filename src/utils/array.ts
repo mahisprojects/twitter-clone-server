@@ -1,3 +1,8 @@
+/**
+ * array functions
+ * @mahi
+ */
+
 type ExtraProps = {
   date?: boolean;
   reverse?: boolean;

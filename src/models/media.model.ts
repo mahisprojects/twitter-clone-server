@@ -1,11 +1,9 @@
-import bcrypt from "bcryptjs";
 import fs from "fs/promises";
 import { User } from "./user.model";
 import {
   DocumentType,
   getModelForClass,
   modelOptions,
-  pre,
   prop,
   Ref,
 } from "@typegoose/typegoose";
@@ -19,15 +17,10 @@ type STORETYPE = "MBCLOUD" | "LOCAL" | "AWS";
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id;
-        // TODO: with url host
-        // ret.url =
-        //   "http://localhost:1234/" + ret.path?.replace("content/", "cdn/");
-        if (!ret.url) ret.url = "/" + ret.path?.replace("content/", "cdn/"); // with VITE LOCAL DEV
+        delete ret.path;
         delete ret._id;
         delete ret.__v;
         delete ret.originalname;
-        // TODO @next feature
-        delete ret.deleted;
       },
     },
   },
@@ -58,9 +51,6 @@ export class Media {
   public user?: Ref<User>;
 
   //extra field
-  @prop({ default: false })
-  public deleted!: boolean;
-
   @prop({ default: "LOCAL" })
   public store: STORETYPE;
 

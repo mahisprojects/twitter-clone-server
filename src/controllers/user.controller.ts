@@ -84,19 +84,6 @@ const currentUserHandler = async (req: Request, res: Response) => {
   res.json({ currentUser: user });
 };
 
-const getUsers = async (req: Request, res: Response) => {
-  try {
-    const query: Record<string, any> = {};
-    if (req.query?.["pro"]) {
-      query["pro"] = true;
-    }
-    const users = await userModel.find(query);
-    res.send(users);
-  } catch (error) {
-    res.status(403).json({ message: "Something went wrong!" });
-  }
-};
-
 const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = req["currentUser"]!.id;
@@ -110,6 +97,19 @@ const updateUser = async (req: Request, res: Response) => {
     res
       .status(403)
       .json({ message: "Something went wrong while updating user!" });
+  }
+};
+
+const getUsers = async (req: Request, res: Response) => {
+  try {
+    const query: Record<string, any> = {};
+    if (req.query?.["pro"]) {
+      query["pro"] = true;
+    }
+    const users = await userModel.find(query);
+    res.send(users);
+  } catch (error) {
+    res.status(403).json({ message: "Something went wrong!" });
   }
 };
 

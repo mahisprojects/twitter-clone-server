@@ -19,9 +19,9 @@ export async function createTweetHandler(req: Request, res: Response) {
     newTweet = await newTweet.populate("attachments");
     await newTweet.populate("owner", "name username profile bio count");
 
-    return res.status(201).send(newTweet.toJSON());
+    res.status(201).send(newTweet.toJSON());
   } catch (e: any) {
-    return res.status(500).send({ status: "ERROR", message: e });
+    res.status(500).send({ status: "ERROR", message: e });
   }
 }
 
@@ -49,7 +49,7 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
     tweet.replyCount = replies;
     tweet.save();
 
-    // create notification for tweet owner
+    //TODO: create notification for tweet owner
 
     res.status(201).send(newTweetReply.toJSON());
   } catch (e: any) {
@@ -97,7 +97,7 @@ export async function getForYouTweets(req: Request, res: Response) {
   }
 }
 
-// list of all available connected users with last tweet
+// retrieve session user tweets
 export async function getMyTweets(req: Request, res: Response) {
   const listMode = req.query?.["list"];
   const includeID = req.query?.["id"];
@@ -120,6 +120,7 @@ export async function getMyTweets(req: Request, res: Response) {
   }
 }
 
+// get all tweets by username
 export async function getUserTweetsByUsername(req: Request, res: Response) {
   const { username } = req.params;
   const listMode = req.query?.["list"];
@@ -257,7 +258,7 @@ export async function toggleTweetLike(req: Request, res: Response, next) {
     if (isLiked) await isLiked?.delete();
     else await likeModel.create({ tweet: id, likedBy: req["_user"].id });
 
-    // find like count
+    // count tweet likes & save count to tweet
     const likes = await likeModel.count({ tweet: id });
     tweet.likeCount = likes;
     tweet.save();
@@ -272,15 +273,14 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
   const { id } = req.params;
   try {
     const tweet = await tweetModel.findById(id);
-    if (!tweet) next(new BadRequestError("Tweet doesn't exists"));
+    if (!tweet) return next(new BadRequestError("Tweet doesn't exists"));
 
-    for await (const mediaID of tweet?.attachments!) {
-      const media = await mediaModel.findById(mediaID);
-      if (media) await media.deletePermanently();
-    }
+    // throw error for invalid tweet owner
+    if (!tweet?.isAdmin(req["_user"]?.id))
+      next(new BadRequestError("Invalid authorization!"));
 
-    // if tweet is reply update parent tweet replyCount
     if (tweet?.isReply) {
+      // if tweet is reply update parent tweet replyCount
       // fetch & save replies count
       const replyCount = await tweetModel.count({
         parentTweet: tweet.parentTweet,
@@ -294,15 +294,11 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
       // delete tweet replies
       const replies = await tweetModel.find({ parentTweet: id });
       for await (const tweetReply of replies) {
-        for await (const mediaID of tweetReply?.attachments!) {
-          const media = await mediaModel.findById(mediaID);
-          if (media) await media.deletePermanently();
-        }
-        tweetReply.delete();
+        await tweetReply.deletePermanently();
       }
     }
 
-    await tweet?.delete();
+    await tweet?.deletePermanently();
 
     res.end();
   } catch (error) {
@@ -310,7 +306,7 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
   }
 }
 
-// ==================== TODO
+// ==================== TODO ===================
 
 // get following/following user liked tweets/recommended tweets
 export async function getTweetForMe(req: Request, res: Response, next) {
@@ -328,5 +324,5 @@ export async function getMyTweetFeed(req: Request, res: Response, next) {
   }
 }
 
-/// tweets from followings list without any retweets
+/// tweets from following list without any retweets
 export async function getFollowingTweets(req: Request, res: Response, next) {}

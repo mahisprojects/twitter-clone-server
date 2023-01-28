@@ -45,9 +45,3 @@ export const verifyToken = async (
     next();
   }
 };
-
-class yeahH {
-  inner: Error;
-
-  constructor(yeah) {}
-}

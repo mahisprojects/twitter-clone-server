@@ -1,6 +1,5 @@
 import { User } from "./user.model";
 import {
-  DocumentType,
   getModelForClass,
   modelOptions,
   prop,
@@ -30,16 +29,12 @@ export class Like {
   @prop({ ref: () => Tweet, required: false })
   public tweet?: Ref<Tweet>;
 
-  @prop({ required: false, default: "TWEET" })
-  public type?: likeType;
-
   @prop({ ref: () => User, required: true })
   public likedBy?: Ref<User>;
 
-  public isAdmin(this: DocumentType<Tweet>, userID: String) {
-    if (this.owner != null) return this.owner?.toString() === userID;
-    return false;
-  }
+  // extra field
+  @prop({ required: false, default: "TWEET" })
+  public type?: likeType;
 }
 
 export const likeModel = getModelForClass(Like);

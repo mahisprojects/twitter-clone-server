@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { connectionModel } from "../models/connection.model";
 import { BadRequestError } from "../common/errors/bad-request-error";
-import { Mongoose, MongooseError } from "mongoose";
 import { userModel } from "../models/user.model";
 
 export const checkIsFollowing = async (a, b) => {

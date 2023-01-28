@@ -7,7 +7,7 @@ const PORT = process.env.PORT;
 
   server.listen(PORT, (): boolean =>
     process.stdout.write(
-      `⚡️[TwitterClone-server]: Server is running at http://localhost:${PORT}\n`
+      `⚡️[Twitter-Clone-Server]: Server is running at http://localhost:${PORT}\n`
     )
   );
 })();

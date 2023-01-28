@@ -37,10 +37,7 @@ type Membership = {
 })
 export class User {
   @prop({})
-  public uid!: string; // google generated firebase user ID // TODO later
-
-  @prop({ required: false, unique: true })
-  public username?: string;
+  public uid!: string; // for social login purpose only - TODO
 
   @prop({ required: true })
   public name!: string;
@@ -51,12 +48,16 @@ export class User {
   @prop({ required: true })
   public password!: string;
 
+  @prop({ required: false, unique: true })
+  public username?: string;
+
   @prop({ required: false })
   public profile?: string;
 
   @prop({ required: false, default: "user" })
   public role?: string;
 
+  // extra fields - Not Implemented
   @prop({ default: false, required: false })
   public pro?: boolean;
 
@@ -66,7 +67,7 @@ export class User {
   @prop({ required: false, default: null })
   public membership?: Membership;
 
-  // number of tweet limit per day -- @feature TODO later
+  // number of tweet limit per day
   @prop({ default: 10, required: false })
   public tweetLimit: number;
 
@@ -74,8 +75,7 @@ export class User {
   @prop({ required: false, default: { followers: 0, following: 0 } })
   public count?: ProfileCount;
 
-  // Extra fields
-
+  // profile data
   @prop({ required: false, default: "" })
   public bio?: string;
   @prop({ required: false })
@@ -87,13 +87,11 @@ export class User {
   public comparePassword(this: DocumentType<User>, inputPassword: string) {
     return bcrypt.compareSync(inputPassword, this.password);
   }
-
-  public generateUsername() {}
 }
 
-type ProfileCount = {
+interface ProfileCount {
   followers?: number;
   following?: number;
-};
+}
 
 export const userModel = getModelForClass(User);

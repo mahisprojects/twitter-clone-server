@@ -1,5 +1,4 @@
 import express from "express";
-import { authorization } from "../common/middleware/authorization";
 import { verifyToken } from "../common/middleware/verifyToken";
 import { requireAuthentication } from "../common/middleware/require-auth";
 import { authenticateIfUser } from "../common/middleware/authenticate-if-user";
