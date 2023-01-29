@@ -7,15 +7,18 @@ Twitter Clone app server using Node/Express/MongoDB
 - ✅ Email/Password Authentication
 - ✅ text/image Tweet
 - ✅ tweet reply, like,
-- ✅ basic tweet view count
+- ✅ Reply/Like/Follow notification
+- ✅ basic tweet views count
 - ✅ search/follow/unfollow user
 - ✅ user profile page
-- ✅ Reply/Like/Follow notification
 
 ## TODO
 
 - [ ] Tags
 - [ ] Tweet Notification
+- [ ] tweet 
+- [ ] Profile Badge (Blue - Legacy)
+- 
 
 ## Getting Started | Project Setup
 

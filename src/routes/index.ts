@@ -11,7 +11,7 @@ import express from "express";
 
 const Routes = Router();
 
-Routes.use("/cdn", express.static("./content"));
+Routes.use("/content", express.static("./content"));
 
 Routes.use("/api/account", AccountRouter);
 Routes.use("/api", UserRouter);
