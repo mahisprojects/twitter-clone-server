@@ -4,6 +4,11 @@ import { sign } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { BadRequestError } from "../common/errors/bad-request-error";
 import { checkIsFollowing } from "./connection.controller";
+import {
+  notificationModel,
+  notificationType,
+} from "../models/notification.model";
+import { sortByKey } from "utils/array";
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -197,6 +202,52 @@ async function searchUserByQuery(req: Request, res: Response, next) {
     res.send(users);
   } catch (error) {
     next(new BadRequestError(`Something went wrong while searching ${query}!`));
+  }
+}
+
+// Notification
+export async function createNotification(
+  from,
+  to,
+  type: notificationType,
+  tweet?: string // to save tweet/like/reply notification
+) {
+  await notificationModel.create({ from, to, type, tweet });
+}
+
+export async function deleteNotification(req: Request, res: Response, next) {
+  const { id } = req.params;
+  try {
+    await notificationModel.findByIdAndDelete(id);
+  } catch (error) {}
+  res.end();
+}
+
+export async function deleteNotificationForUser(
+  from,
+  to,
+  type: notificationType,
+  tweet?: string
+) {
+  try {
+    await notificationModel.deleteOne({ from, to, type, tweet });
+  } catch (error) {}
+}
+
+// fetch user notifications
+export async function getNoficationsForUser(req: Request, res: Response, next) {
+  try {
+    const userID = req["_user"]?.id;
+    const notificationsRes = await notificationModel
+      .find({ to: userID })
+      .populate("from", "name username profile bio count");
+
+    const notifications = sortByKey(notificationsRes, "createdAt", {
+      reverse: true,
+    });
+    res.send(notifications);
+  } catch (error) {
+    res.status(400).send({ message: "Error while fetching notifications" });
   }
 }
 

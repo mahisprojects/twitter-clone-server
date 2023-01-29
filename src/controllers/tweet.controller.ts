@@ -5,6 +5,10 @@ import { tweetModel } from "../models/tweet.model";
 import { userModel } from "../models/user.model";
 import { sortByKey } from "../utils/array";
 import { likeModel } from "../models/like.model";
+import {
+  createNotification,
+  deleteNotificationForUser,
+} from "./user.controller";
 
 // user new tweeet
 export async function createTweetHandler(req: Request, res: Response) {
@@ -29,7 +33,7 @@ export async function createTweetHandler(req: Request, res: Response) {
 export async function createTweetReplyHandler(req: Request, res: Response) {
   const body = req.body;
   const { id: tweetID } = req.params;
-
+  const userID = req["_user"]?.id;
   try {
     const tweet = await tweetModel.findById(tweetID);
     if (!tweet) throw new Error("Tweet not found!");
@@ -38,7 +42,7 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
       ...body,
       isReply: true,
       parentTweet: tweetID,
-      owner: req["_user"].id,
+      owner: userID,
     });
 
     newTweetReply = await newTweetReply.populate("attachments");
@@ -49,7 +53,8 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
     tweet.replyCount = replies;
     tweet.save();
 
-    //TODO: create notification for tweet owner
+    //create notification for tweet owner
+    await createNotification(userID, tweet.owner, "REPLY", tweetID);
 
     res.status(201).send(newTweetReply.toJSON());
   } catch (e: any) {
@@ -247,16 +252,23 @@ export async function toggleTweetLike(req: Request, res: Response, next) {
   const tweet = await tweetModel.findById(id);
 
   if (!tweet) return next(new BadRequestError("Tweet doesn't exists!"));
-
+  const userID = req["_user"]?.id;
   try {
     // find tweet is already liked or not
     const isLiked = await likeModel.findOne({
       tweet: id,
-      likedBy: req["_user"].id,
+      likedBy: userID,
     });
 
-    if (isLiked) await isLiked?.delete();
-    else await likeModel.create({ tweet: id, likedBy: req["_user"].id });
+    if (isLiked) {
+      await isLiked?.delete();
+      // delete notification
+      await deleteNotificationForUser(userID, tweet.owner, "LIKE", id);
+    } else {
+      await likeModel.create({ tweet: id, likedBy: userID });
+      // create like notification
+      await createNotification(userID, tweet?.owner, "LIKE", id);
+    }
 
     // count tweet likes & save count to tweet
     const likes = await likeModel.count({ tweet: id });
@@ -288,6 +300,7 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
       await tweetModel.findByIdAndUpdate(tweet.parentTweet, {
         $set: { replyCount },
       });
+      // TODO: delete replies notifications
     }
 
     if (!tweet?.isReply) {
@@ -297,6 +310,8 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
         await tweetReply.deletePermanently();
       }
     }
+    //TODO: delete tweet notifications
+    // await deleteNotification(userID, tweet.owner, "REPLY");
 
     await tweet?.deletePermanently();
 

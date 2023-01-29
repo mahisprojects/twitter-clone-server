@@ -10,11 +10,12 @@ Twitter Clone app server using Node/Express/MongoDB
 - ✅ basic tweet view count
 - ✅ search/follow/unfollow user
 - ✅ user profile page
+- ✅ Reply/Like/Follow notification
 
 ## TODO
 
 - [ ] Tags
-- [ ] Tweet/Reply/Like Notification
+- [ ] Tweet Notification
 
 ## Getting Started | Project Setup
 

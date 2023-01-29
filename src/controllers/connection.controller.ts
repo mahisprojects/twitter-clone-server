@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { connectionModel } from "../models/connection.model";
 import { BadRequestError } from "../common/errors/bad-request-error";
 import { userModel } from "../models/user.model";
+import {
+  createNotification,
+  deleteNotificationForUser,
+} from "./user.controller";
 
 export const checkIsFollowing = async (a, b) => {
   const existConnection = await connectionModel.findOne({
@@ -56,7 +60,8 @@ export const followConnection = async (
     sessionUser!.count = { ...sessionUser?.count, following };
     sessionUser?.save();
 
-    // TODO: create follow notification
+    //  create follow notification
+    await createNotification(userID, toFollowUser, "FOLLOW");
 
     res.send(newConnection.toJSON());
   } catch (error) {
@@ -134,6 +139,9 @@ export async function unfollowConnection(req: Request, res: Response, next) {
     const following = await connectionModel.count({ from: userID });
     sessionUser!.count = { ...sessionUser?.count, following };
     sessionUser?.save();
+
+    // delete follow Notification
+    await deleteNotificationForUser(userID, toUnFollowUser, "FOLLOW");
 
     res.end();
   } catch (error) {
