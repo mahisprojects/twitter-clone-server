@@ -9,7 +9,7 @@ import {
 } from "@typegoose/typegoose";
 import { Media, mediaModel } from "./media.model";
 
-type tweetType = "NORMAL" | "IMAGE" | "POLL"; // Not Implemented
+type tweetType = "RETWEET" | "QUOTE_RETWEET" | "NORMAL" | "IMAGE" | "POLL"; // Not Implemented
 type ReplyMode = "PUBLIC" | "FOLLOWING" | "MENTIONED"; // Not Implemented
 @modelOptions({
   schemaOptions: {
@@ -20,6 +20,17 @@ type ReplyMode = "PUBLIC" | "FOLLOWING" | "MENTIONED"; // Not Implemented
         delete ret._id;
         delete ret.__v;
         delete ret.deleted;
+        // move count fields to count
+        ret.count = {
+          likes: ret.likeCount,
+          views: ret.viewCount,
+          retweets: ret.retweetCount,
+          replies: ret.replyCount,
+        };
+        // delete ret.likeCount;
+        // delete ret.viewCount;
+        // delete ret.retweetCount;
+        // delete ret.replyCount;
       },
     },
   },
@@ -28,7 +39,7 @@ type ReplyMode = "PUBLIC" | "FOLLOWING" | "MENTIONED"; // Not Implemented
   },
 })
 export class Tweet {
-  @prop({ required: true })
+  @prop({ required: false })
   public content: string;
 
   @prop({ ref: () => Media, default: [], required: false })
