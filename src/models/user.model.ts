@@ -58,15 +58,8 @@ export class User {
   public role?: string;
 
   // extra fields - Not Implemented
-  @prop({ default: false, required: false })
-  public pro?: boolean;
-
-  @prop({ default: false, required: false })
-  public forever?: boolean; // make user pro forever 😉
-
   @prop({ required: false, default: null })
   public membership?: Membership;
-
   // number of tweet limit per day
   @prop({ default: 10, required: false })
   public tweetLimit: number;
