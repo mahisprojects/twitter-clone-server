@@ -11,9 +11,9 @@ import {
 
 type AccountType = "Person" | "Business" | "Government";
 
-type Membership = {
+type Subscription = {
   type: AccountType;
-  validTill: number;
+  validTill?: number;
   verified: boolean;
   legacy?: boolean;
 };
@@ -59,7 +59,7 @@ export class User {
 
   // extra fields - Not Implemented
   @prop({ required: false, default: null })
-  public membership?: Membership;
+  public subscription?: Subscription;
   // number of tweet limit per day
   @prop({ default: 10, required: false })
   public tweetLimit: number;

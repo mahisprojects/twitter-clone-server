@@ -75,15 +75,13 @@ const currentUserHandler = async (req: Request, res: Response) => {
   const userId = req["currentUser"]!.id;
   const user = await userModel.findById(userId);
 
-  // check if user is pro to determine whether subs is expired or not
-  if (user?.pro && !user?.forever) {
-    if (
-      !user?.membership?.validTill ||
-      user?.membership?.validTill < Date.now()
-    ) {
-      // update pro to non pro
-      await userModel.findByIdAndUpdate(userId, { $set: { pro: false } });
-    }
+  // clean subscription if expired
+  if (
+    user?.subscription?.validTill &&
+    user?.subscription?.validTill < Date.now()
+  ) {
+    // update pro to non pro
+    await userModel.findByIdAndUpdate(userId, { $set: { subscription: null } });
   }
 
   res.json({ currentUser: user });
