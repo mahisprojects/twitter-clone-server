@@ -16,9 +16,9 @@ Twitter Clone app server using Node/Express/MongoDB
 
 - [ ] Tags
 - [ ] Tweet Notification
-- [ ] tweet 
-- [ ] Profile Badge (Blue - Legacy)
-- 
+- [ ] tweet
+- [ ] Twitter Blue Badge (Person/Business/Government/Legacy)
+-
 
 ## Getting Started | Project Setup
 
