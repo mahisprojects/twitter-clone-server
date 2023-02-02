@@ -9,6 +9,7 @@ import {
   notificationType,
 } from "../models/notification.model";
 import { sortByKey } from "utils/array";
+import { UnauthorizedError } from "../common/errors/unauthorized-error";
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -68,6 +69,24 @@ const registerUser = async (req: Request, res: Response) => {
         .status(500)
         .json({ message: "Account already exits with provided email!" });
     res.status(500).json({ message: "Account creation failed!" });
+  }
+};
+// verify password endpoint function, only for logged user
+const confirmPassword = async (req: Request, res: Response, next) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) next(new BadRequestError("Invalid input!"));
+
+    const existUser = await userModel.findById(req["_user"]?.id);
+
+    if (!existUser || !existUser?.comparePassword(password)) {
+      next(new UnauthorizedError("Invalid password!"));
+    }
+
+    res.json({ confirmed: true });
+  } catch (error: any) {
+    next(new BadRequestError("Verification Failed!"));
   }
 };
 
@@ -233,6 +252,7 @@ export async function getNoficationsForUser(req: Request, res: Response, next) {
 export default {
   loginUser,
   registerUser,
+  confirmPassword,
   // resetPassword,
   currentUserHandler,
   getUserByUsername,

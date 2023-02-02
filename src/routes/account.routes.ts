@@ -18,6 +18,11 @@ const userAreaHandler = [verifyToken, requireAuthentication];
 router.post("/login", userController.loginUser);
 router.post("/register", userController.registerUser);
 
+router.post(
+  "/confirm-password",
+  userAreaHandler,
+  userController.confirmPassword
+);
 
 router.post("/get-verified", userAreaHandler, getBlueVerified);
 
