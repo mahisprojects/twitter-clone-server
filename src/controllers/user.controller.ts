@@ -12,6 +12,7 @@ import { sortByKey } from "utils/array";
 import { UnauthorizedError } from "../common/errors/unauthorized-error";
 import { postTweetFromTwitterVerified } from "./tweet.controller";
 
+import { signAuthToken } from "utils/signAuthToken";
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -26,15 +27,8 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).send({ message: "Invalid credentials!" });
     }
 
-    const userJwt = sign(
-      { id: existUser.id, email: existUser.email },
-      process.env.JWT_ENCRYPTION_KEY!,
-      {
-        expiresIn: "7days",
-      }
-    );
-
-    return res.json({ _token: userJwt });
+    const userJwt = signAuthToken(existUser.toJSON());
+    res.json({ _token: userJwt });
   } catch (error: any) {
     return res
       .status(500)

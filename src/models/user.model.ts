@@ -55,8 +55,9 @@ type Subscription = {
   },
 })
 export class User {
-  @prop({})
-  public uid!: string; // for social login purpose only - TODO
+  // for social login purpose
+  @prop({ required: false })
+  public uid!: string;
 
   @prop({ required: true })
   public name!: string;
@@ -64,7 +65,7 @@ export class User {
   @prop({ required: true, unique: true })
   public email!: string;
 
-  @prop({ required: true })
+  @prop({ required: false })
   public password!: string;
 
   @prop({ required: false, unique: true })
