@@ -280,8 +280,9 @@ async function loginWithGoogle(req: Request, res: Response, next) {
       // create user
       authUser = await userModel.create({ uid: userid, name, email, profile });
     }
-    const userJwt = signAuthToken(authUser.toObject());
-    res.json({ token: userJwt, data: authUser.toObject() });
+    const { id, name, email } = authUser;
+    const jwtToken = signAuthToken({ id, name, email });
+    res.json({ token: jwtToken });
   } catch (error) {
     console.log(error);
 
