@@ -10,7 +10,7 @@ Twitter Clone app server using Node/Express/MongoDB
 - ✅ Reply/Like/Follow notification
 - ✅ basic tweet views count
 - ✅ search/follow/unfollow user
-- ✅ user profile page
+- ✅ user profile page, profile/cover update
 - ✅ Twitter Blue Verification Badge (Person/Business/Government/Legacy)
 
 ## TODO
@@ -22,7 +22,10 @@ Twitter Clone app server using Node/Express/MongoDB
 
 ## Getting Started | Project Setup
 
-When you git clone the repository
+When you git clone the repository,
+
+- create config **`.env`** & add necessary variables. (required variables can be found in **`.env.example`**)
+- Run the following script to start development server.
 
 ```bash
 bun install
