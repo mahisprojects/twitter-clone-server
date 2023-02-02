@@ -10,6 +10,7 @@ import {
 } from "../models/notification.model";
 import { sortByKey } from "utils/array";
 import { UnauthorizedError } from "../common/errors/unauthorized-error";
+import { postTweetFromTwitterVerified } from "./tweet.controller";
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -238,6 +239,30 @@ export async function getNoficationsForUser(req: Request, res: Response, next) {
     res.send(notifications);
   } catch (error) {
     res.status(400).send({ message: "Error while fetching notifications" });
+  }
+}
+
+export async function getBlueVerified(req: Request, res: Response, next) {
+  try {
+    const { accountType } = req.body;
+    const user = req["_user"];
+
+    await userModel.findByIdAndUpdate(user.id, {
+      $set: {
+        subscription: {
+          type: accountType,
+          legacy: true,
+          verified: true,
+        },
+      },
+    });
+
+    await postTweetFromTwitterVerified(
+      `Congrats @${user?.username}, You're verified.`
+    );
+    res.send({ verified: true });
+  } catch (error) {
+    next(new BadRequestError("Verification failed!"));
   }
 }
 
