@@ -341,3 +341,13 @@ export async function getMyTweetFeed(req: Request, res: Response, next) {
 
 /// tweets from following list without any retweets
 export async function getFollowingTweets(req: Request, res: Response, next) {}
+
+// tweet by @verified on getting verified
+export async function postTweetFromTwitterVerified(tweet) {
+  // find @verified account
+  const verifiedAccount = await userModel.findOne({
+    $or: [{ username: "Verified" }, { username: "verified" }],
+  });
+  if (!verifiedAccount) return;
+  await tweetModel.create({ content: tweet, owner: verifiedAccount?.id });
+}

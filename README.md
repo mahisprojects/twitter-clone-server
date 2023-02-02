@@ -11,14 +11,14 @@ Twitter Clone app server using Node/Express/MongoDB
 - ✅ basic tweet views count
 - ✅ search/follow/unfollow user
 - ✅ user profile page
+- ✅ Twitter Blue Verification Badge (Person/Business/Government/Legacy)
 
 ## TODO
 
 - [ ] Tags
 - [ ] Tweet Notification
 - [ ] tweet
-- [ ] Twitter Blue Badge (Person/Business/Government/Legacy)
--
+- [ ] Google/Twitter login
 
 ## Getting Started | Project Setup
 

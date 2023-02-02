@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authorization } from "common/middleware/authorization";
 import { requireAuthentication } from "common/middleware/require-auth";
 import { verifyToken } from "common/middleware/verifyToken";
-import userController from "controllers/user.controller";
+import userController, { getBlueVerified } from "controllers/user.controller";
 
 const router = Router();
 
@@ -17,6 +17,9 @@ const userAreaHandler = [verifyToken, requireAuthentication];
 
 router.post("/login", userController.loginUser);
 router.post("/register", userController.registerUser);
+
+
+router.post("/get-verified", userAreaHandler, getBlueVerified);
 
 router.get("/me", userAreaHandler, userController.currentUserHandler);
 router.patch("/me", userAreaHandler, userController.updateUser);
