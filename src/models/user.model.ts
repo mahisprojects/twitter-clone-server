@@ -13,9 +13,7 @@ type AccountType = "Person" | "Business" | "Government";
 
 type Subscription = {
   type: AccountType;
-  validTill?: number;
   verified: boolean;
-  legacy?: boolean;
 };
 
 @modelOptions({
@@ -26,7 +24,28 @@ type Subscription = {
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+        delete ret.email;
         delete ret.password;
+        delete ret.role;
+        delete ret.tweetLimit;
+        ret.account = {
+          isVerified: ret?.subscription?.verified ?? false,
+          type: ret?.subscription?.type,
+        };
+        delete ret.subscription;
+      },
+    },
+    //  current user data transform - using object
+    toObject: {
+      transform(doc, ret, options) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        delete ret.password;
+        ret.account = {
+          isVerified: ret?.subscription?.verified ?? false,
+          type: ret?.subscription?.type,
+        };
       },
     },
   },
@@ -53,6 +72,8 @@ export class User {
 
   @prop({ required: false })
   public profile?: string;
+  @prop({ required: false })
+  public profileCover?: string;
 
   @prop({ required: false, default: "user" })
   public role?: string;
