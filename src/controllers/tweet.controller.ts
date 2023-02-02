@@ -170,29 +170,24 @@ export async function getMyTweets(req: Request, res: Response) {
 }
 
 // get all tweets by username
-export async function getUserTweetsByUsername(req: Request, res: Response) {
+export async function getUserTweetsByUsername(
+  req: Request,
+  res: Response,
+  next
+) {
   const { username } = req.params;
-  const listMode = req.query?.["list"];
-  const includeID = req.query?.["id"];
-
   const userID = req["_user"]?.id;
-
-  const projection = {
-    ...(listMode && { content: 1, _id: includeID ? 1 : 0 }),
-  };
   try {
     // find userID by username
     const tweetUser = await userModel.findOne({ username });
     const userTweets = await tweetModel
-      .find(
-        {
-          owner: tweetUser?.id,
-          $or: [{ isReply: { $exists: false } }, { isReply: false }],
-        },
-        projection
-      )
+      .find({
+        owner: tweetUser?.id,
+        $or: [{ isReply: { $exists: false } }, { isReply: false }],
+      })
       .populate("owner")
       .populate("attachments", "id path url mimetype");
+
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
 
     // get stat for tweet is liked or not by session user
@@ -206,10 +201,26 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
 
     res.send(tweets);
   } catch (e: any) {
-    res.status(500).send({
-      status: "ERROR",
-      message: "Failed to get requested user tweets",
-    });
+    next(new BadRequestError("Failed to fetch user tweets"));
+  }
+}
+export async function getLikedTweetsByUser(req: Request, res: Response, next) {
+  const { username } = req.params;
+  try {
+    // find userID by username
+    const tweetUser = await userModel.findOne({ username });
+    const userTweets = await likeModel
+      .find({ likedBy: tweetUser?.id, type: "TWEET" })
+      .populate({
+        path: "tweet",
+        populate: [{ path: "owner" }, { path: "attachments" }],
+      });
+    const likedTweets = sortByKey(userTweets, "createdAt", { reverse: true });
+    const tweets: any = [];
+    for (const tweet of likedTweets) tweets.push(tweet?.toJSON()?.tweet);
+    res.send(tweets);
+  } catch (error) {
+    next(new BadRequestError("Failed to fetch user tweets"));
   }
 }
 

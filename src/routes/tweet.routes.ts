@@ -10,6 +10,7 @@ import {
   createTweetReplyHandler,
   deleteTweetHandler,
   getForYouTweets,
+  getLikedTweetsByUser,
   getMyTweets,
   getTweetById,
   getTweetReplies,
@@ -41,6 +42,7 @@ router.post("/tweet/:id/reply", userAreaHandler, createTweetReplyHandler);
 
 // get requested user tweets
 router.get("/tweets/u/:username", authenticateIfUser, getUserTweetsByUsername);
+router.get("/tweets/u/:username/liked", userAreaHandler, getLikedTweetsByUser);
 
 const storage = new MediaStorage({ uploadDir: "user_tweet_media/" });
 
