@@ -141,14 +141,6 @@ const deleteUser = async (req: Request, res: Response) => {
 export async function getUserById(req: Request, res: Response, next) {
   try {
     const { id } = req.params;
-    const user = await userModel.findById(id, {
-      email: 1,
-      name: 1,
-      username: 1,
-      profile: 1,
-      status: 1,
-      role: 1,
-      lastActivity: 1,
     const user = await userModel.findById(id);
     res.send(user?.toObject());
   } catch (error) {
