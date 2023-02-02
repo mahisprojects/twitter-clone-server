@@ -21,9 +21,49 @@ export async function createTweetHandler(req: Request, res: Response) {
     });
 
     newTweet = await newTweet.populate("attachments");
-    await newTweet.populate("owner", "name username profile bio count");
+    await newTweet.populate(
+      "owner",
+      "name username profile bio count subscription"
+    );
 
     res.status(201).send(newTweet.toJSON());
+  } catch (e: any) {
+    res.status(500).send({ status: "ERROR", message: e });
+  }
+}
+// retweet/quote tweet/undo tweet
+export async function tweetReTweetHandler(req: Request, res: Response) {
+  const body = req.body;
+  const { id: tweetID } = req.params;
+  const isQuoteTweet = body["content"] && body["content"]?.trim !== "";
+  const userID = req["_user"]?.id;
+  try {
+    // check for tweet is already tweeted or not for RETWEET only
+    const retweetCheck = await tweetModel.findOne({
+      parentTweet: tweetID,
+      type: "RETWEET",
+      owner: userID,
+    });
+
+    if (retweetCheck) {
+      // remove retweet & return tweet
+      return res.end();
+    }
+
+    let reTweet = await tweetModel.create({
+      ...body,
+      parentTweet: tweetID,
+      type: isQuoteTweet ? "QUOTE_RETWEET" : "RETWEET",
+      owner: userID,
+    });
+
+    reTweet = await reTweet.populate({
+      path: "parentTweet",
+      populate: [{ path: "owner" }, { path: "attachments" }],
+    });
+    await reTweet.populate("owner");
+
+    res.status(201).send(reTweet.toJSON());
   } catch (e: any) {
     res.status(500).send({ status: "ERROR", message: e });
   }
@@ -46,7 +86,7 @@ export async function createTweetReplyHandler(req: Request, res: Response) {
     });
 
     newTweetReply = await newTweetReply.populate("attachments");
-    await newTweetReply.populate("owner", "name username profile bio count");
+    await newTweetReply.populate("owner");
 
     // fetch & save replies count
     const replies = await tweetModel.count({ parentTweet: tweetID });
@@ -84,8 +124,12 @@ export async function getForYouTweets(req: Request, res: Response) {
         },
         projection
       )
-      .populate("owner", "name username profile bio count")
-      .populate("attachments", "id path url mimetype");
+      .populate("owner")
+      .populate("attachments", "id path url mimetype")
+      .populate({
+        path: "parentTweet",
+        populate: [{ path: "owner" }, { path: "attachments" }],
+      });
     const _tweets = sortByKey(fetchedTweets, "createdAt", { reverse: true });
 
     // get stat for tweet is liked or not by session user
@@ -147,7 +191,7 @@ export async function getUserTweetsByUsername(req: Request, res: Response) {
         },
         projection
       )
-      .populate("owner", "name username profile bio count")
+      .populate("owner")
       .populate("attachments", "id path url mimetype");
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
 
@@ -176,20 +220,36 @@ async function isTweetLikedByUser(tweet, likedBy) {
   return true;
 }
 
+async function isTweetRetweetByUser(tweet, owner) {
+  const isRetweeted = await tweetModel.exists({ parentTweet: tweet, owner });
+  if (!isRetweeted) return false;
+  return true;
+}
+
+async function getRelativeRetweetData(tweet, owner) {
+  const isRetweeted = await tweetModel.exists({ parentTweet: tweet, owner });
+  if (!isRetweeted) return false;
+  return true;
+}
+
 export async function getTweetById(req: Request, res: Response) {
   const userID = req["_user"]?.id;
   try {
     const { id } = req.params;
     const tweet = await tweetModel
       .findById(id)
-      .populate("owner", "name username profile bio count")
+      .populate("owner")
       .populate("attachments", "id path url mimetype");
 
     if (!tweet) throw new Error("Tweet not found!");
 
+    // check tweet is retweet or not
+
     const liked = userID ? await isTweetLikedByUser(tweet.id, userID) : false;
 
     // find tweet replies
+
+    // get tweet retweet data from followings data
 
     res.send({ ...tweet.toJSON(), liked });
   } catch (error) {
@@ -208,7 +268,7 @@ export async function getTweetReplies(req: Request, res: Response) {
 
     const tweetReplies = await tweetModel
       .find({ isReply: true, parentTweet: id })
-      .populate("owner", "name username profile bio count")
+      .populate("owner")
       .populate("attachments", "id path url mimetype");
 
     // filter by tweet likes @v1
@@ -239,7 +299,7 @@ export async function updateTweetHandler(req: Request, res: Response) {
   await tweetModel.findByIdAndUpdate(id, { $set: req.body });
   const updatedTweet = await tweetModel
     .findById(id)
-    .populate("owner", "name username profile bio count")
+    .populate("owner")
     .populate("attachments", "id path url mimetype");
 
   const liked = await isTweetLikedByUser(id, req["_user"].id);

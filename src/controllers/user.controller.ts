@@ -75,16 +75,7 @@ const currentUserHandler = async (req: Request, res: Response) => {
   const userId = req["currentUser"]!.id;
   const user = await userModel.findById(userId);
 
-  // clean subscription if expired
-  if (
-    user?.subscription?.validTill &&
-    user?.subscription?.validTill < Date.now()
-  ) {
-    // update pro to non pro
-    await userModel.findByIdAndUpdate(userId, { $set: { subscription: null } });
-  }
-
-  res.json({ currentUser: user });
+  res.json({ currentUser: user?.toObject() });
 };
 
 const updateUser = async (req: Request, res: Response) => {
@@ -139,8 +130,8 @@ export async function getUserById(req: Request, res: Response, next) {
       status: 1,
       role: 1,
       lastActivity: 1,
-    });
-    res.send(user);
+    const user = await userModel.findById(id);
+    res.send(user?.toObject());
   } catch (error) {
     next(new BadRequestError("User doesn't exists!"));
   }
@@ -151,17 +142,7 @@ async function getUserByUsername(req: Request, res: Response, next) {
     const { username } = req.params;
     const user = await userModel.findOne(
       { username },
-      {
-        name: 1,
-        username: 1,
-        membership: 1,
-        profile: 1,
-        count: 1,
-        bio: 1,
-        location: 1,
-        url: 1,
-        createdAt: 1,
-      }
+      "name username subscription profile profileCover count bio location url createdAt"
     );
     if (!user) return next(new BadRequestError("User doesn't exists!"));
     if (sessionUser) {
