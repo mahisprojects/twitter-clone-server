@@ -12,7 +12,9 @@ import { sortByKey } from "utils/array";
 import { UnauthorizedError } from "../common/errors/unauthorized-error";
 import { postTweetFromTwitterVerified } from "./tweet.controller";
 
+import { OAuth2Client } from "google-auth-library";
 import { signAuthToken } from "utils/signAuthToken";
+
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -260,8 +262,36 @@ export async function getBlueVerified(req: Request, res: Response, next) {
   }
 }
 
+/**
+ * google login - login/register user using google ID
+ */
+async function loginWithGoogle(req: Request, res: Response, next) {
+  const { token } = req.body;
+  try {
+    if (!token) next(new BadRequestError("Invalid input!"));
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({ idToken: token });
+    const payload = ticket.getPayload();
+    // check user exits or not with googleID
+    const userid = payload?.sub;
+    var authUser = await userModel.findOne({ uid: userid });
+    if (!authUser) {
+      const { name, email, picture: profile } = payload!;
+      // create user
+      authUser = await userModel.create({ uid: userid, name, email, profile });
+    }
+    const userJwt = signAuthToken(authUser.toObject());
+    res.json({ token: userJwt, data: authUser.toObject() });
+  } catch (error) {
+    console.log(error);
+
+    next(new BadRequestError("Failed to login using Google!"));
+  }
+}
+
 export default {
   loginUser,
+  loginWithGoogle,
   registerUser,
   confirmPassword,
   // resetPassword,

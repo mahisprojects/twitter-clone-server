@@ -16,6 +16,7 @@ router.get("/protected", verifyToken, (req, res) => {
 const userAreaHandler = [verifyToken, requireAuthentication];
 
 router.post("/login", userController.loginUser);
+router.post("/googleLogin", userController.loginWithGoogle);
 router.post("/register", userController.registerUser);
 
 router.post(
