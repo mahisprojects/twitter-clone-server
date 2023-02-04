@@ -45,9 +45,10 @@ export async function tweetReTweetHandler(req: Request, res: Response) {
       owner: userID,
     });
 
+    // delete retweet, if exits
     if (retweetCheck) {
-      // remove retweet & return tweet
-      return res.end();
+      await retweetCheck.deletePermanently();
+      return res.status(204).end();
     }
 
     let reTweet = await tweetModel.create({
@@ -375,7 +376,7 @@ export async function deleteTweetHandler(req: Request, res: Response, next) {
     }
 
     if (!tweet?.isReply) {
-      // delete tweet replies
+      // delete tweet replies/retweets
       const replies = await tweetModel.find({ parentTweet: id });
       for await (const tweetReply of replies) {
         await tweetReply.deletePermanently();

@@ -16,6 +16,7 @@ import {
   getTweetReplies,
   getUserTweetsByUsername,
   toggleTweetLike,
+  tweetReTweetHandler,
   updateTweetHandler,
 } from "controllers/tweet.controller";
 const router = express.Router();
@@ -39,6 +40,9 @@ router.post("/tweet/new", userAreaHandler, createTweetHandler);
 // tweet reply
 router.get("/tweet/:id/replies", authenticateIfUser, getTweetReplies);
 router.post("/tweet/:id/reply", userAreaHandler, createTweetReplyHandler);
+
+// retweet
+router.post("/tweet/:id/retweet", userAreaHandler, tweetReTweetHandler);
 
 // get requested user tweets
 router.get("/tweets/u/:username", authenticateIfUser, getUserTweetsByUsername);
