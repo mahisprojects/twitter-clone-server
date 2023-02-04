@@ -1,6 +1,8 @@
 # Twitter Clone Server
 
-Twitter Clone app server using Node/Express/MongoDB
+Twitter Clone app server built in Node/Express/MongoDB
+
+#### [Frontend App](https://github.com/itsbohara/twitter-clone)
 
 ## Features
 
