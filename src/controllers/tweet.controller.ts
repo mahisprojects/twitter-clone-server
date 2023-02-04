@@ -21,10 +21,11 @@ export async function createTweetHandler(req: Request, res: Response) {
     });
 
     newTweet = await newTweet.populate("attachments");
-    await newTweet.populate(
-      "owner",
-      "name username profile bio count subscription"
-    );
+    await newTweet.populate("owner");
+    await newTweet.populate({
+      path: "parentTweet",
+      populate: [{ path: "owner" }, { path: "attachments" }],
+    });
 
     res.status(201).send(newTweet.toJSON());
   } catch (e: any) {
@@ -187,7 +188,11 @@ export async function getUserTweetsByUsername(
         $or: [{ isReply: { $exists: false } }, { isReply: false }],
       })
       .populate("owner")
-      .populate("attachments", "id path url mimetype");
+      .populate("attachments")
+      .populate({
+        path: "parentTweet",
+        populate: [{ path: "owner" }, { path: "attachments" }],
+      });
 
     const _tweets = sortByKey(userTweets, "createdAt", { reverse: true });
 
@@ -251,7 +256,11 @@ export async function getTweetById(req: Request, res: Response) {
     const tweet = await tweetModel
       .findById(id)
       .populate("owner")
-      .populate("attachments", "id path url mimetype");
+      .populate("attachments")
+      .populate({
+        path: "parentTweet",
+        populate: [{ path: "owner" }, { path: "attachments" }],
+      });
 
     if (!tweet) throw new Error("Tweet not found!");
 
@@ -281,7 +290,7 @@ export async function getTweetReplies(req: Request, res: Response) {
     const tweetReplies = await tweetModel
       .find({ isReply: true, parentTweet: id })
       .populate("owner")
-      .populate("attachments", "id path url mimetype");
+      .populate("attachments");
 
     // filter by tweet likes @v1
     const _replies = sortByKey(tweetReplies, "likeCount", { reverse: true });
