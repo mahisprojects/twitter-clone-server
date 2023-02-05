@@ -19,7 +19,7 @@ router.get(
 );
 router.get("/user/:id", userAreaHandler, getUserById);
 
-router.get("/user/q/:query", userAreaHandler, userController.searchUserByQuery);
+router.get("/user/q/:query", authenticateIfUser, userController.searchUserByQuery);
 
 // notification routes
 router.get("/notifications", userAreaHandler, getNoficationsForUser);

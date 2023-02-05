@@ -169,7 +169,7 @@ async function getUserByUsername(req: Request, res: Response, next) {
 async function searchUserByQuery(req: Request, res: Response, next) {
   //
   const { query } = req.params;
-  const userID = req["_user"].id;
+  const userID = req["_user"]?.id;
   try {
     const usersList = await userModel.find(
       {
@@ -182,7 +182,9 @@ async function searchUserByQuery(req: Request, res: Response, next) {
     );
     let users: any[] = [];
     for await (const user of usersList) {
-      const following = await checkIsFollowing(userID, user.id);
+      const following = userID
+        ? await checkIsFollowing(userID, user.id)
+        : false;
       users.push({ ...user.toJSON(), following });
     }
 
