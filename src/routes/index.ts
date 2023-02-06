@@ -7,6 +7,7 @@ import UserRouter from "./user.routes";
 import ConnectionRoutes from "./connection.routes";
 import TweetRoutes from "./tweet.routes";
 import MediaRoutes from "./media.routes";
+import ExtraRoutes from "./extra.routes";
 import express from "express";
 
 const Routes = Router();
@@ -18,6 +19,7 @@ Routes.use("/api", UserRouter);
 Routes.use("/api", ConnectionRoutes);
 Routes.use("/api", TweetRoutes);
 Routes.use("/api", MediaRoutes);
+Routes.use("/api", ExtraRoutes);
 
 Routes.all("/", async (req, res) => {
   res.send({
