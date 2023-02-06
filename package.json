@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_PATH=dist/src/ node ./dist/src/server.js",
+    "start": "NODE_PATH=dist/src/ node ./dist/server.js",
     "dev": "ts-node -r tsconfig-paths/register ./src/server.ts",
     "build": "tsc && tsc-alias",
     "build:watch": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",

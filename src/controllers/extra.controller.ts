@@ -28,8 +28,8 @@ export async function createNPYearProgressTweet(
 ) {
   try {
     if (
-      !req.headers["verificationKey"] ||
-      req.headers["verificationKey"] !== process.env.PROGRESS_VERIFY_KEY
+      !req.headers["xverificationkey"] ||
+      req.headers["xverificationkey"] !== process.env.PROGRESS_VERIFY_KEY
     ) {
       next(new UnauthorizedError("Not allowed!"));
     }
