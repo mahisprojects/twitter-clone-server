@@ -1,4 +1,4 @@
-# Twitter Clone Server
+# Twitter(X) Clone Server
 
 Twitter Clone app server built in Node/Express/MongoDB
 
