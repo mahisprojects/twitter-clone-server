@@ -24,7 +24,7 @@ Routes.use("/api", ExtraRoutes);
 Routes.all("/", async (req, res) => {
   res.send({
     server: {
-      name: "Twitter Clone Server",
+      name: "X Clone Server",
       status: "Running",
       version: process.env.npm_package_version ?? "1.0.0",
       nodeVersion: `NodeJS - ${process.versions.node}`,
