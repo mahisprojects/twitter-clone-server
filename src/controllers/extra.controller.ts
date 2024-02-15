@@ -31,7 +31,7 @@ export async function createNPYearProgressTweet(
       !req.headers["xverificationkey"] ||
       req.headers["xverificationkey"] !== process.env.PROGRESS_VERIFY_KEY
     ) {
-      next(new UnauthorizedError("Not allowed!"));
+      return next(new UnauthorizedError("Not allowed!"));
     }
 
     // year progress - ID@official = 63e0ba22fa146f94e37ebf94
